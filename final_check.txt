@@ -1,0 +1,30 @@
+﻿Analyzing DistWise...                                           
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:59:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:61:42 - deprecated_member_use
+   info - Use interpolation to compose strings and values - lib\services\background_service.dart:85:26 - prefer_interpolation_to_compose_strings
+   info - Don't invoke 'print' in production code - lib\services\background_service.dart:107:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\geocoding_service.dart:19:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\geocoding_service.dart:37:7 - avoid_print
+   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\services\location_service.dart:38:7 - deprecated_member_use
+   info - The constant name 'KEY_DESTINATION_LAT' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:7:23 - constant_identifier_names
+   info - The constant name 'KEY_DESTINATION_LNG' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:8:23 - constant_identifier_names
+   info - The constant name 'KEY_CACHED_ROUTE' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:9:23 - constant_identifier_names
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:62:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:65:52 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\ui\home_screen.dart:141:7 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:247:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:267:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:267:108 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:290:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:352:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:392:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:394:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:437:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:439:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:444:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:445:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:481:110 - deprecated_member_use
+   info - 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre - lib\ui\home_screen.dart:507:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:519:114 - deprecated_member_use
+

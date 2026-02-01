@@ -1,0 +1,61 @@
+﻿Analyzing DistWise...                                           
+
+warning - Unused import: 'package:permission_handler/permission_handler.dart' - lib\main.dart:2:8 - unused_import
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\main.dart:34:11 - deprecated_member_use
+  error - The getter 'semibold' isn't defined for the type 'FontWeight' - lib\main.dart:44:36 - undefined_getter
+  error - The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'.  - lib\main.dart:57:20 - argument_type_not_assignable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:61:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:63:42 - deprecated_member_use
+warning - Unused import: 'package:flutter/material.dart' - lib\services\background_service.dart:3:8 - unused_import
+warning - Unused import: 'package:geolocator/geolocator.dart' - lib\services\background_service.dart:7:8 - unused_import
+   info - Use interpolation to compose strings and values - lib\services\background_service.dart:87:26 - prefer_interpolation_to_compose_strings
+   info - Don't invoke 'print' in production code - lib\services\background_service.dart:109:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\geocoding_service.dart:19:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\geocoding_service.dart:37:7 - avoid_print
+   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\services\location_service.dart:38:7 - deprecated_member_use
+   info - The constant name 'KEY_DESTINATION_LAT' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:7:23 - constant_identifier_names
+   info - The constant name 'KEY_DESTINATION_LNG' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:8:23 - constant_identifier_names
+   info - The constant name 'KEY_CACHED_ROUTE' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:9:23 - constant_identifier_names
+warning - Unused import: 'package:geolocator/geolocator.dart' - lib\ui\home_screen.dart:13:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:63:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:66:52 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\ui\home_screen.dart:142:7 - avoid_print
+warning - The value of the local variable 'colorScheme' isn't used - lib\ui\home_screen.dart:240:11 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:250:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:270:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:270:108 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:293:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:355:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:395:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:397:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:440:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:442:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:447:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:448:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:484:110 - deprecated_member_use
+   info - 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre - lib\ui\home_screen.dart:510:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:522:114 - deprecated_member_use
+
+flutter : 35 issues 
+found. (ran in 21.9s)
+At line:1 char:1
++ flutter analyze 
+--no-pub > 
+analysis_output.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo   
+           : 
+NotSpecified: (3    
+5 issues found. (ran 
+    in 
+21.9s):String) [],   
+  RemoteException
+    + 
+FullyQualifiedError  
+  Id : 
+NativeCommandErr    
+or
+ 

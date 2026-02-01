@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:distwise/services/location_service.dart';
 import 'package:distwise/services/route_service.dart';
 import 'package:distwise/services/storage_service.dart';

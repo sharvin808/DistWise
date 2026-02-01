@@ -1,0 +1,73 @@
+﻿Analyzing DistWise...                                           
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:59:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:61:42 - deprecated_member_use
+  error - Undefined name 'Timer' - lib\services\background_service.dart:28:3 - undefined_identifier
+   info - Use interpolation to compose strings and values - lib\services\background_service.dart:84:26 - prefer_interpolation_to_compose_strings
+   info - Don't invoke 'print' in production code - lib\services\background_service.dart:106:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\geocoding_service.dart:19:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\geocoding_service.dart:37:7 - avoid_print
+   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\services\location_service.dart:38:7 - deprecated_member_use
+   info - The constant name 'KEY_DESTINATION_LAT' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:7:23 - constant_identifier_names
+   info - The constant name 'KEY_DESTINATION_LNG' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:8:23 - constant_identifier_names
+   info - The constant name 'KEY_CACHED_ROUTE' isn't a lowerCamelCase identifier - lib\services\storage_service.dart:9:23 - constant_identifier_names
+warning - The declaration '<unnamed>' isn't referenced - lib\ui\home_screen.dart:1:1 - unused_element
+  error - Expected a method, getter, setter or operator declaration - lib\ui\home_screen.dart:1:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\ui\home_screen.dart:1:2 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\ui\home_screen.dart:1:3 - expected_executable
+  error - Expected to find ';' - lib\ui\home_screen.dart:1:4 - expected_token
+  error - Undefined class 'dart' - lib\ui\home_screen.dart:1:4 - undefined_class
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:2:1 - directive_after_declaration
+  error - Expected an identifier - lib\ui\home_screen.dart:2:1 - missing_identifier
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:3:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:4:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:5:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:6:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:7:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:8:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:9:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:10:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:11:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:12:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:13:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:14:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\ui\home_screen.dart:15:1 - directive_after_declaration
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:63:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:66:52 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\ui\home_screen.dart:142:7 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:248:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:268:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:268:108 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:291:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:353:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:393:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:395:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:438:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:440:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:445:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:446:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:482:110 - deprecated_member_use
+   info - 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre - lib\ui\home_screen.dart:508:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\ui\home_screen.dart:520:114 - deprecated_member_use
+
+flutter : 49 issues 
+found. (ran in 19.2s)
+At line:1 char:1
++ flutter analyze 
+--no-pub > 
+final_analysis.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (49 issu   
+ es found. (ran i    
+n 19.2s):String)     
+[], RemoteExcep    
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
