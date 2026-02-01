@@ -36,9 +36,59 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _checkLocationService();
     _requestPermissions();
     _loadState();
     _setupServiceListener();
+  }
+  
+  Future<void> _checkLocationService() async {
+    final isEnabled = await LocationService().isLocationServiceEnabled();
+    if (!isEnabled && mounted) {
+      _showLocationServiceDialog();
+    }
+  }
+  
+  void _showLocationServiceDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.location_off, color: Colors.orange),
+              SizedBox(width: 10),
+              Text('Location Disabled'),
+            ],
+          ),
+          content: const Text(
+            'Location services are currently disabled. Please enable location to use DistWise and track your journey.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final opened = await LocationService().openLocationSettings();
+                if (opened) {
+                  // Wait a bit for user to enable location, then reload
+                  await Future.delayed(const Duration(seconds: 2));
+                  _loadState();
+                }
+              },
+              icon: const Icon(Icons.settings),
+              label: const Text('Open Settings'),
+            ),
+          ],
+        );
+      },
+    );
   }
   
   @override
@@ -189,6 +239,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
             )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          try {
+            final pos = await LocationService().getCurrentPosition();
+            final newPosition = LatLng(pos.latitude, pos.longitude);
+            setState(() {
+              _currentPosition = newPosition;
+            });
+            _mapController.move(newPosition, 15);
+            if (_destination != null) {
+              await _calculateDistance();
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error getting location: ${e.toString()}')),
+              );
+            }
+          }
+        },
+        child: const Icon(Icons.my_location),
+        tooltip: 'My Location',
       ),
       body: Stack(
         children: [
