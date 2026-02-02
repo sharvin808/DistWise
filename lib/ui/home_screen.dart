@@ -144,24 +144,46 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refresh() async {
-    // Clear search and reset UI state
+    // Reload location and move map
+    final pos = await LocationService().getCurrentPosition();
     setState(() {
-      _searchController.clear();
-      _routePoints = [];
-      _distanceDisplay = "0.00 km";
-      _currentStation = null;
+      _currentPosition = LatLng(pos.latitude, pos.longitude);
     });
-    
-    // Reload state (current position, destination, etc.)
-    await _loadState();
-    
-    // Show a small feedback
+    _mapController.move(_currentPosition!, 15);
+
+    // Show feedback
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Location Refreshed', style: GoogleFonts.inter()),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFF6366F1),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
+  Future<void> _reset() async {
+    // Clear state in memory
+    setState(() {
+      _searchController.clear();
+      _routePoints = [];
+      _distanceDisplay = "0.00 km";
+      _currentStation = null;
+      _destination = null;
+    });
+    
+    // Clear state in storage
+    await _storageService.clearDestination();
+    
+    // Show feedback
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Session Reset', style: GoogleFonts.inter()),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFFEF4444),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -591,15 +613,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
                     child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.refresh, color: Color(0xFF6366F1), size: 20),
-                          onPressed: _refresh,
-                          tooltip: 'Refresh Location',
-                        ),
-                        // const Icon(Icons.search, color: Color(0xFF6366F1), size: 20),
+                        const Icon(Icons.search, color: Color(0xFF6366F1), size: 20),
                         Expanded(
                           child: TextField(
                             controller: _searchController,
@@ -625,6 +642,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
+          Positioned(
+            top: 230,
+            right: 20,
+            child: Column(
+              children: [
+                FloatingActionButton.small(
+                  onPressed: _refresh,
+                  backgroundColor: const Color(0xFF1E293B).withOpacity(0.8),
+                  foregroundColor: const Color(0xFF6366F1),
+                  tooltip: 'Refresh Location',
+                  child: const Icon(Icons.my_location),
+                ).animate().fadeIn(duration: 700.ms).scale(),
+                const SizedBox(height: 12),
+                FloatingActionButton.small(
+                  onPressed: _reset,
+                  backgroundColor: const Color(0xFF1E293B).withOpacity(0.8),
+                  foregroundColor: const Color(0xFFEF4444),
+                  tooltip: 'Reset Journey',
+                  child: const Icon(Icons.delete_outline),
+                ).animate().fadeIn(duration: 800.ms).scale(),
+              ],
+            ),
+          ),
           Positioned(
             bottom: 30,
             left: 20,
