@@ -1,18 +1,30 @@
+import 'package:distwise/services/database_service.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 
 class GeocodingService {
+  final DatabaseService _db = DatabaseService();
+
   /// Convert an address or place name to coordinates
   Future<LatLng?> getCoordinatesFromAddress(String address) async {
-    if (address.trim().isEmpty) {
+    final query = address.trim();
+    if (query.isEmpty) {
       return null;
     }
     
+    // 1. Try local database first
+    final offlineResult = await _db.getSearchOffline(query);
+    if (offlineResult != null) return offlineResult;
+
     try {
-      final locations = await locationFromAddress(address);
+      final locations = await locationFromAddress(query);
       if (locations.isNotEmpty) {
         final location = locations.first;
-        return LatLng(location.latitude, location.longitude);
+        final coords = LatLng(location.latitude, location.longitude);
+        
+        // 2. Save result for future offline use
+        await _db.saveSearch(query, coords);
+        return coords;
       }
       return null;
     } catch (e) {

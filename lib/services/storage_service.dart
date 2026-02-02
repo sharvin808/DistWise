@@ -7,6 +7,7 @@ class StorageService {
   static const String KEY_DESTINATION_LAT = 'dest_lat';
   static const String KEY_DESTINATION_LNG = 'dest_lng';
   static const String KEY_CACHED_ROUTE = 'cached_route';
+  static const String KEY_TRAVEL_MODE = 'travel_mode';
 
   Future<void> saveDestination(LatLng destination) async {
     final prefs = await SharedPreferences.getInstance();
@@ -43,5 +44,15 @@ class StorageService {
       await prefs.remove(KEY_DESTINATION_LAT);
       await prefs.remove(KEY_DESTINATION_LNG);
       await prefs.remove(KEY_CACHED_ROUTE);
+  }
+
+  Future<void> saveTravelMode(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(KEY_TRAVEL_MODE, mode);
+  }
+
+  Future<String> getTravelMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(KEY_TRAVEL_MODE) ?? 'car';
   }
 }

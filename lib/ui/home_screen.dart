@@ -12,6 +12,11 @@ import 'package:distwise/services/geocoding_service.dart';
 import 'package:distwise/services/route_service.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_compass/flutter_compass.dart';
+import 'package:distwise/services/compass_service.dart';
+import 'package:distwise/services/train_service.dart';
+import 'package:distwise/services/network_service.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,13 +32,20 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isServiceRunning = false;
   bool _isOffline = false;
   List<LatLng> _routePoints = [];
+  String _travelMode = 'car';
+  String? _currentStation;
+  bool _isStationLoading = false;
   
   final MapController _mapController = MapController();
   final BackgroundServiceManager _bgManager = BackgroundServiceManager();
   final StorageService _storageService = StorageService();
   final GeocodingService _geocodingService = GeocodingService();
   final RouteService _routeService = RouteService();
+  final TrainService _trainService = TrainService();
   final TextEditingController _searchController = TextEditingController();
+  final CompassService _compassService = CompassService();
+  double? _heading;
+  StreamSubscription<CompassEvent>? _compassSubscription;
 
   @override
   void initState() {
@@ -42,6 +54,17 @@ class _HomeScreenState extends State<HomeScreen> {
     _requestPermissions();
     _loadState();
     _setupServiceListener();
+    _setupCompass();
+  }
+  
+  void _setupCompass() {
+    _compassSubscription = _compassService.compassStream?.listen((event) {
+      if (mounted) {
+        setState(() {
+          _heading = event.heading;
+        });
+      }
+    });
   }
   
   Future<void> _checkLocationService() async {
@@ -109,6 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _compassSubscription?.cancel();
     super.dispose();
   }
 
@@ -119,16 +143,43 @@ class _HomeScreenState extends State<HomeScreen> {
     ].request(); 
   }
 
+  Future<void> _refresh() async {
+    // Clear search and reset UI state
+    setState(() {
+      _searchController.clear();
+      _routePoints = [];
+      _distanceDisplay = "0.00 km";
+      _currentStation = null;
+    });
+    
+    // Reload state (current position, destination, etc.)
+    await _loadState();
+    
+    // Show a small feedback
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Location Refreshed', style: GoogleFonts.inter()),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF6366F1),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   Future<void> _loadState() async {
     try {
       final dest = await _storageService.getDestination();
       final pos = await LocationService().getCurrentPosition();
       final isRunning = await FlutterBackgroundService().isRunning();
+      final mode = await _storageService.getTravelMode();
       
       setState(() {
         _destination = dest;
         _currentPosition = LatLng(pos.latitude, pos.longitude);
         _isServiceRunning = isRunning;
+        _travelMode = mode;
       });
       
       if (_currentPosition != null) {
@@ -148,12 +199,50 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           if (event['lat'] != null && event['lng'] != null) {
              _currentPosition = LatLng(event['lat'], event['lng']);
+             if (_travelMode == 'train') {
+               if (event['station'] != null) {
+                 _currentStation = event['station'];
+               } else {
+                 _checkNearestStation(_currentPosition!);
+               }
+             }
           }
           _distanceDisplay = event['distance'] ?? "0.00 km";
           _isOffline = event['offline'] ?? false;
         });
       }
     });
+  }
+
+  Future<void> _checkNearestStation(LatLng position) async {
+    if (_isStationLoading) return;
+    
+    setState(() => _isStationLoading = true);
+    try {
+      final station = await _trainService.getNearestStation(position);
+      if (mounted && station != null && station != _currentStation) {
+        setState(() => _currentStation = station);
+      }
+    } finally {
+      if (mounted) setState(() => _isStationLoading = false);
+    }
+  }
+
+  void _toggleTravelMode(String mode) async {
+    if (_travelMode == mode) return;
+    
+    setState(() {
+      _travelMode = mode;
+      if (mode == 'car') {
+        _currentStation = null;
+      } else if (_currentPosition != null) {
+        _checkNearestStation(_currentPosition!);
+      }
+    });
+    await _storageService.saveTravelMode(mode);
+    if (_destination != null) {
+      _calculateDistance();
+    }
   }
 
   Future<void> _setDestination(LatLng point) async {
@@ -167,6 +256,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _calculateDistance() async {
     if (_currentPosition == null || _destination == null) return;
     
+    if (_travelMode == 'train') {
+      final distance = await LocationService().getDistanceInMeters(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+        _destination!.latitude,
+        _destination!.longitude,
+      );
+      setState(() {
+        _routePoints = [_currentPosition!, _destination!];
+        _distanceDisplay = "${(distance / 1000).toStringAsFixed(2)} km";
+      });
+      return;
+    }
+
     try {
       final routeData = await _routeService.getRoute(_currentPosition!, _destination!);
       setState(() {
@@ -247,17 +350,28 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: const Color(0xFF0F172A).withOpacity(0.5),
               elevation: 0,
               centerTitle: true,
-              title: Text(
-                'DistWise',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  letterSpacing: 1.2,
-                  foreground: Paint()
-                    ..shader = const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF06B6D4)],
-                    ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
-                ),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 40,
+                    errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'DistWise',
+                    style: GoogleFonts.outfit(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      letterSpacing: 1.2,
+                      foreground: Paint()
+                        ..shader = const LinearGradient(
+                          colors: [Color(0xFF6366F1), Color(0xFF06B6D4)],
+                        ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
+                    ),
+                  ),
+                ],
               ),
               actions: [
                 Container(
@@ -323,6 +437,9 @@ class _HomeScreenState extends State<HomeScreen> {
               TileLayer(
                 urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.distwise.app',
+                tileProvider: CachedTileProvider(
+                  store: NetworkService().cacheStore,
+                ),
               ),
               if (_routePoints.isNotEmpty)
                 PolylineLayer(
@@ -342,21 +459,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       point: _currentPosition!,
                       width: 60,
                       height: 60,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.3),
-                              shape: BoxShape.circle,
-                            ),
-                          ).animate(onPlay: (controller) => controller.repeat())
-                           .scale(begin: const Offset(1, 1), end: const Offset(2, 2), duration: 2.seconds)
-                           .fadeOut(duration: 2.seconds),
-                          const Icon(Icons.my_location, color: Color(0xFF6366F1), size: 30),
-                        ],
+                      child: Transform.rotate(
+                        angle: ((_heading ?? 0) * (3.14159 / 180) * -1),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6366F1).withOpacity(0.3),
+                                shape: BoxShape.circle,
+                              ),
+                            ).animate(onPlay: (controller) => controller.repeat())
+                             .scale(begin: const Offset(1, 1), end: const Offset(2, 2), duration: 2.seconds)
+                             .fadeOut(duration: 2.seconds),
+                            const Icon(Icons.navigation, color: Color(0xFF6366F1), size: 30),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -380,7 +500,84 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           Positioned(
-            top: 110,
+            top: 100,
+            left: 20,
+            right: 20,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B).withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _toggleTravelMode('car'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _travelMode == 'car' ? const Color(0xFF6366F1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.all(4),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.directions_car, color: _travelMode == 'car' ? Colors.white : Colors.white54, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Car',
+                                  style: GoogleFonts.inter(
+                                    color: _travelMode == 'car' ? Colors.white : Colors.white54,
+                                    fontWeight: _travelMode == 'car' ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _toggleTravelMode('train'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _travelMode == 'train' ? const Color(0xFF6366F1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.all(4),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.train, color: _travelMode == 'train' ? Colors.white : Colors.white54, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Train',
+                                  style: GoogleFonts.inter(
+                                    color: _travelMode == 'train' ? Colors.white : Colors.white54,
+                                    fontWeight: _travelMode == 'train' ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2, end: 0),
+          Positioned(
+            top: 165,
             left: 20,
             right: 20,
             child: ClipRRect(
@@ -393,11 +590,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
                       children: [
-                        const Icon(Icons.search, color: Color(0xFF6366F1), size: 20),
+                        IconButton(
+                          icon: const Icon(Icons.refresh, color: Color(0xFF6366F1), size: 20),
+                          onPressed: _refresh,
+                          tooltip: 'Refresh Location',
+                        ),
+                        // const Icon(Icons.search, color: Color(0xFF6366F1), size: 20),
                         Expanded(
                           child: TextField(
                             controller: _searchController,
@@ -449,6 +651,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (_travelMode == 'train' && _currentStation != null) ...[
+                        Row(
+                          children: [
+                            const Icon(Icons.train, color: Color(0xFF6366F1), size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              "REACHED: ",
+                              style: GoogleFonts.outfit(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF6366F1),
+                                letterSpacing: 1,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                _currentStation!.toUpperCase(),
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Divider(color: Colors.white.withOpacity(0.1)),
+                        const SizedBox(height: 12),
+                      ],
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -482,7 +716,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Icon(
-                              _isServiceRunning ? Icons.navigation : Icons.map,
+                              _isServiceRunning ? (_travelMode == 'car' ? Icons.navigation : Icons.train) : Icons.map,
                               color: _isServiceRunning ? const Color(0xFF10B981) : const Color(0xFF6366F1),
                               size: 30,
                             ),

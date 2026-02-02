@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:distwise/services/network_service.dart';
 import 'package:latlong2/latlong.dart';
 
 class RouteService {
@@ -9,10 +8,10 @@ class RouteService {
     final url = '$_baseUrl/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson';
     
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await NetworkService().dio.get(url);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         if (data['routes'] != null && (data['routes'] as List).isNotEmpty) {
           final route = data['routes'][0];
           final distance = (route['distance'] as num).toDouble(); // meters

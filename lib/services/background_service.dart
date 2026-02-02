@@ -6,16 +6,22 @@ import 'package:latlong2/latlong.dart';
 import 'package:distwise/services/location_service.dart';
 import 'package:distwise/services/route_service.dart';
 import 'package:distwise/services/storage_service.dart';
+import 'package:distwise/services/train_service.dart';
+import 'package:distwise/services/network_service.dart';
 
 // Entry point for the background service
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
   
+  // Initialize Network Cache for background
+  await NetworkService().init();
+  
   // Initialize services
   final storageService = StorageService();
   final routeService = RouteService();
   final locationService = LocationService();
+  final trainService = TrainService();
   
   // Handler for stopping the service
   service.on('stopService').listen((event) {
@@ -24,11 +30,11 @@ void onStart(ServiceInstance service) async {
   
   // Setup Timer for 5 minute updates
   // We trigger immediately then every 5 mins
-  _performUpdate(service, locationService, routeService, storageService);
+  _performUpdate(service, locationService, routeService, storageService, trainService);
   
   Timer.periodic(const Duration(minutes: 5), (timer) async {
     if (await FlutterBackgroundService().isRunning() == false) timer.cancel();
-    _performUpdate(service, locationService, routeService, storageService);
+    _performUpdate(service, locationService, routeService, storageService, trainService);
   });
 }
 
@@ -36,15 +42,22 @@ Future<void> _performUpdate(
     ServiceInstance service,
     LocationService locationService,
     RouteService routeService,
-    StorageService storageService) async {
+    StorageService storageService,
+    TrainService trainService) async {
 
   try {
      // 1. Get Current Location
      final position = await locationService.getCurrentPosition();
      final currentLatLng = LatLng(position.latitude, position.longitude);
      
-     // 2. Get Destination
+     // 2. Get Destination & Mode
      final destination = await storageService.getDestination();
+     final travelMode = await storageService.getTravelMode();
+     String? stationName;
+     
+     if (travelMode == 'train') {
+       stationName = await trainService.getNearestStation(currentLatLng);
+     }
      
      if (destination == null) {
        if (service is AndroidServiceInstance) {
@@ -61,11 +74,18 @@ Future<void> _performUpdate(
      
      // 3. Calculate Distance
      try {
-       // Try Online First
-       final routeData = await routeService.getRoute(currentLatLng, destination);
-       remainingDistance = routeData.distanceMeters;
-       // Cache it
-       await storageService.saveRoute(routeData);
+       if (travelMode == 'train') {
+         remainingDistance = await locationService.getDistanceInMeters(
+           currentLatLng.latitude, currentLatLng.longitude,
+           destination.latitude, destination.longitude
+         );
+       } else {
+         // Try Online First
+         final routeData = await routeService.getRoute(currentLatLng, destination);
+         remainingDistance = routeData.distanceMeters;
+         // Cache it
+         await storageService.saveRoute(routeData);
+       }
      } catch (e) {
        // Online failed, try Offline
        isOffline = true;
@@ -84,6 +104,9 @@ Future<void> _performUpdate(
      // 4. Update Notification
      String distString = (remainingDistance / 1000).toStringAsFixed(2) + " km";
      String content = "Remaining: $distString ${isOffline ? '(Offline)' : ''}";
+     if (stationName != null) {
+       content = "Reached: $stationName | $content";
+     }
      
      if (service is AndroidServiceInstance) {
        service.setForegroundNotificationInfo(
@@ -100,6 +123,7 @@ Future<void> _performUpdate(
          "lng": currentLatLng.longitude,
          "distance": distString,
          "offline": isOffline,
+         "station": stationName,
        },
      );
      

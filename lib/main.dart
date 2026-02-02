@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:distwise/services/background_service.dart';
 import 'package:distwise/ui/home_screen.dart';
+import 'package:distwise/services/network_service.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,6 +10,9 @@ void main() async {
   
   // Initialize background service configuration
   await BackgroundServiceManager().initialize();
+  
+  // Initialize Network Cache
+  await NetworkService().init();
   
   runApp(const MyApp());
 }
